@@ -1,0 +1,28 @@
+class material():
+    def setProperties(self,E = 205*10**9,poisson = 0.3, rho = 7800, units='SI'):
+    # El material por defecto es acero genérico con propiedades en unidades de sitema internacional
+        self.E = E
+        self.poisson = poisson
+        self.rho = rho
+        self.units = units
+
+    def units(self):
+        print(self.units)
+
+class Al2014_T6(material):
+    def setProperties(self, E =69*10**9, poisson = 0.3, rho = 2700, Sy = 400*10**6, Sut = 455*10**6, units = 'SI' ):
+        self.E = E
+        self.poisson = poisson
+        self.rho = rho
+        self.Sy = Sy
+        self.Sut = Sut
+        self.units = units
+
+class AISI_302(material):
+    def setProperties(self, E =200*10e09, poisson = 0.3, rho = 7600, Sy = 520*10e06, Sut = 860*10e06, units = 'SI' ):
+        self.E = E
+        self.poisson = poisson
+        self.rho = rho
+        self.Sy = Sy
+        self.Sut = Sut
+        self.units = units
