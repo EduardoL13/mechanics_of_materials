@@ -1,0 +1,98 @@
+import numpy as np
+class geometry():
+    # Se asume un rod/tubo
+
+    def setProfile(self,diameter,thkWall=0, units = "mm"):
+        """
+        Description:
+        Set geometry profile and it's properties
+
+        Parameters:
+        diameter: Outer diameter of the tube or rod
+        thkWall: Wall thickness of the tube (for a rod this value is 0)
+        diameterInner: inner diameter for a tube (irrelevant in a rod)
+        areaSection: Area of the geometry
+        inertia: 2nd moment of area (Inertia). For a rod or a tube Ixx = Iyy
+        J: Polar moment of inertia.
+        units: Work units
+
+        Output:
+        attribute.diameter
+        attribute.thkWall
+        attribute.diameterInner
+        attribute.areaSection
+        attribute.inertia
+        attribute.J
+        attribute.units
+
+        """
+        self.diameter = diameter
+        self.thkWall = thkWall
+        diameterInner = self.diameter-2*self.thkWall
+        if diameterInner == self.diameter:
+            self.areaSection = np.pi*((self.diameter/2)**2)
+            self.Ix = np.pi/4*((self.diameter/2)**4)
+        else:
+            self.areaSection = np.pi*((self.diameter/2)**2-(diameterInner/2)**2)
+            self.Ix = np.pi/4*((self.diameter/2)**4 - (diameterInner/2)**4)
+
+        self.polarMoment = self.Ix*2 # Momento polar de inercia
+        self.units = units
+
+        #self.J
+ #       self.featureDim =
+
+    def units(self):
+        """
+        Description:
+        Return work units in the console
+
+        Parameters: none
+
+        Output: none
+        """
+        print(self.units)
+
+class rectangle(geometry):
+
+    def setProfile(self,width,height,thkWall=0, units = "mm"):
+        """
+        Description:
+        Set geometry profile and it's properties
+
+        Parameters:
+        diameter: Outer diameter of the tube or rod
+        thkWall: Wall thickness of the tube (for a rod this value is 0)
+        diameterInner: inner diameter for a tube (irrelevant in a rod)
+        areaSection: Area of the geometry
+        inertia: 2nd moment of area (Inertia). For a rod or a tube Ixx = Iyy
+        J: Polar moment of inertia.
+        units: Work units
+
+        Output:
+        attribute.diameter
+        attribute.thkWall
+        attribute.diameterInner
+        attribute.areaSection
+        attribute.inertia
+        attribute.J
+        attribute.units
+
+        """
+        self.width = width
+        self.height = height
+        self.thkWall = thkWall
+        areaSectionWhole = self.height * self.width
+
+        heightInner = height-2*self.thkWall
+        widthInner = width-2*self.thkWall
+        areaInner = heightInner*widthInner
+        if areaInner == self.height*self.width:
+            self.areaSection = areaSectionWhole
+            self.Ix = 1/12*self.width*self.height**3
+            self.Iy = 1/12*self.height*self.width**3
+        else:
+            self.areaSection = areaSectionWhole - areaInner
+            self.Ix = 1/12*self.width*self.height**3 - 1/12*widthInner*heightInner**3
+            self.Iy = 1/12*self.height*self.width**3 - 1/12*heightInner*widthInner**3
+        self.units = units
