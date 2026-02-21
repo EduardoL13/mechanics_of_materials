@@ -1,3 +1,16 @@
+"""
+loadedBeamCases module (Functions Set)
+
+Description: Module that contains a set of functions to evaluate and plot beams deflection under different loading scenarios
+Required imported modules: beamPlotter
+Required Available Libraries: Numpy
+
+@author: ELC
+"""
+import numpy as np
+import beamPlotter as plotter
+
+
 def beamVolLC1(material,geometry,q,l,x=0,plotStatus="only",status=" "):
     """
     Description:
@@ -293,4 +306,5 @@ def beamDoubleFixedEnds(material, geometria, qw, l,plotStatus='only'):
     plotter(xv,deltaForPlot,status=plotStatus,tag="FixedEnds")
 
     return [Ray,Ma,def_total]
+
 
