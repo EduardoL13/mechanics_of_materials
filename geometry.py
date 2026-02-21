@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
-
-This is a temporary script file.
+geometry: Sets custom geometry object used for engineering calculations done in the EE Module
 """
 
 import numpy as np
@@ -156,4 +154,5 @@ class beamC(geometry):
         
     def setSectionalArea(self):
         self.sectionArea = self.flange.sectionArea*2 + self.web.sectionArea
+
         
