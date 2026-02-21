@@ -4,6 +4,7 @@ geometry module
 
 Description: Sets custom geometry object used for engineering calculations done in the EE Module
 
+@author: ELC
 """
 
 import numpy as np
@@ -159,4 +160,5 @@ class beamC(geometry):
         self.sectionArea = self.flange.sectionArea*2 + self.web.sectionArea
 
         
+
 
