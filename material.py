@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-material module: Python script that imports data from an excel file (Data hub) which containing the material data extracted from the material database
+material module
+
+Description: Sets material object that imports material data from the data hub (excel file) used for engineering calculations done in the EE Module
+
 @author: ELC
 """
 
@@ -38,3 +41,4 @@ class material():
 
 
         
+
