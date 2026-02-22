@@ -10,7 +10,6 @@ Description: Sets custom geometry object used for engineering calculations done 
 import numpy as np
 
 class geometry():
-    # Por defecto, geometry es un perfil rectangular
     
     def __int__(self, units = "SI"):
         self.units = units
@@ -39,18 +38,19 @@ class circular(geometry):
         thkWall: Wall thickness of the tube (for a rod this value is 0)
         diameterInner: inner diameter for a tube (irrelevant in a rod)
         areaSection: Area of the geometry
-        inertia: 2nd moment of area (Inertia). For a rod or a tube Ixx = Iyy
-        J: Polar moment of inertia.
-        units: Work units (either "SI" (m) or "IMP" (in))
+        inertia_xx: 2nd moment of area x (Ixx). 
+        inertia_yy: 2nd moment of area y (Iyy). same value as inertia_xx in this case
+        polarMoment: Polar moment of inertia.
+        
 
         Output:
-        attribute.diameter
-        attribute.thkWall
-        attribute.diameterInner
-        attribute.areaSection
-        attribute.inertia
-        attribute.J
-        attribute.units
+        attribute: .diameter
+        attribute: .thkWall
+        attribute: .areaSection
+        attribute: .inertia
+        attribute: .yNeutralAxis
+        attribute: .polarMoment
+        
 
         """
         self.diameter = diameter
@@ -58,11 +58,12 @@ class circular(geometry):
         diameterInner = self.diameter-2*self.thkWall
         if diameterInner == self.diameter:
             self.areaSection = np.pi*((self.diameter/2)**2)
-            self.Ix = np.pi/4*((self.diameter/2)**4)
+            self.inertia_xx = np.pi/4*((self.diameter/2)**4)
         else:
             self.areaSection = np.pi*((self.diameter/2)**2-(diameterInner/2)**2)
-            self.Ix = np.pi/4*((self.diameter/2)**4 - (diameterInner/2)**4)
+            self.inertia_xx = np.pi/4*((self.diameter/2)**4 - (diameterInner/2)**4)
 
+        self.yNeutralAxis = self.diameter/2
         self.polarMoment = self.Ix*2 # Momento polar de inercia
 
         #self.J
@@ -78,23 +79,21 @@ class rectangular(geometry):
         Set geometry profile and it's properties. All input parameters units must be either [m] (SI) or [in] (IMP)
 
         Parameters:
-        diameter: Outer diameter of the tube or rod
+        width: Rectangular bar section width
+        height: Rectangular bar section height
         thkWall: Wall thickness of the tube (for a rod this value is 0)
-        diameterInner: inner diameter for a tube (irrelevant in a rod)
         areaSection: Area of the geometry
-        inertia: 2nd moment of area (Inertia). For a rod or a tube Ixx = Iyy
-        J: Polar moment of inertia.
-        units: Work units
-
+        inertia_xx: 2nd moment of area x (Ixx). 
+        inertia_yy: 2nd moment of area y (Iyy). 
+        
         Output:
-        attribute.diameter
-        attribute.thkWall
-        attribute.diameterInner
-        attribute.areaSection
-        attribute.inertia
-        attribute.J
-        attribute.units
-
+        attribute: .width
+        attribute: .height
+        attribute: .thkWall
+        attribute: .areaSection
+        attribute: .yNeutralAxis
+        attribute: .inertia_xx
+        attribute: .inertia_yy
         """
         self.width = width
         self.height = height
@@ -106,53 +105,161 @@ class rectangular(geometry):
         areaInner = heightInner*widthInner
         if areaInner == self.height*self.width:
             self.areaSection = areaSectionWhole
-            self.Ix = 1/12*self.width*self.height**3
-            self.Iy = 1/12*self.height*self.width**3
+            self.inertia_xx = 1/12*self.width*self.height**3
+            self.inertia_yy = 1/12*self.height*self.width**3
         else:
             self.areaSection = areaSectionWhole - areaInner
-            self.Ix = 1/12*self.width*self.height**3 - 1/12*widthInner*heightInner**3
-            self.Iy = 1/12*self.height*self.width**3 - 1/12*heightInner*widthInner**3
+            self.inertia_xx = 1/12*self.width*self.height**3 - 1/12*widthInner*heightInner**3
+            self.inertia_yy = 1/12*self.height*self.width**3 - 1/12*heightInner*widthInner**3
+        self.yNeutralAxis = self.height/2
         
 class beamI(geometry):
-    
+        """
+        Description:
+        Section for a beam with custom I shape. Beam model is a composite model of 3 rectangle objects which are:
+        Flange x 2 (Rectangular solid geometry object)
+        Web (Rectangular solid geometry object)
+        """
+
     def setFlange(self,widthFlange,heightFlange):
+        """
+        Description:
+        Flange object created by using the rectangular class object and setting required attributes
+        
+        Parameters
+        widthFlange: width of the flange rectangular object
+        heightFlange: height of the flange rectangular object
+        
+        Output:
+        attribute: .flange
+        """ 
         
         self.flange = rectangular(units = self.units)
         self.flange.setProfile(widthFlange, heightFlange)
     
     def setWeb(self,widthWeb,heightWeb):
+        """
+        Description:
+        Web object created by using the rectangular class object and setting required attributes
+
+        Parameters
+        widthWeb: width of the Web rectangular object
+        heightWeb: height of the rectangular object
         
+        Output:
+        attribute: .web
+        """ 
         self.web = rectangular(units = self.units)
         self.web.setProfile(widthWeb, heightWeb)     
         
     def setInertiaSA(self):
-        kParallelAxis = self.flange.Ix + self.flange.areaSection*(self.web.height/2 + self.flange.height/2)**2
-        self.inertiaSA = self.web.Ix + kParallelAxis*2
+        """
+        Description:
+        Sets inertia for beam strong axis (Ixx in this case)
+        
+        Output:
+        attribute: .inertia_xx
+        """ 
+        
+        kParallelAxis = self.flange.inertia_xx + self.flange.areaSection*(self.web.height/2 + self.flange.height/2)**2
+        self.inertia_xx = self.web.inertia_xx + kParallelAxis*2
         
     def setInertiaWA(self):
-        kParallelAxis = self.flange.Iy # + self.flange.areaSection*(self.web.width/2 + self.flange.width/2)**2
-        self.inertiaWA = self.web.Iy + kParallelAxis*2        
+        """
+        Description:
+        Sets inertia for beam weak axis (Iyy in this case)
+        
+        Output:
+        attribute: .inertia_yy
+        """         
+        kParallelAxis = self.flange.inertia_yy # + self.flange.areaSection*(self.web.width/2 + self.flange.width/2)**2
+        self.inertia_yy = self.web.inertia_yy + kParallelAxis*2        
         
     def setSectionalArea(self):
-        self.sectionArea = self.flange.sectionArea*2 + self.web.sectionArea
+        """
+        Description:
+        Sets Area of the whole beam section 
         
+        Output:
+        attribute: .areaSection
+        """       
+        self.areaSection = self.flange.areaSection*2 + self.web.areaSection
+
+    def setDistYNeutralAxis(self):
+        """
+        Description:
+        Sets distance y from neutral axis xx to the furthest point in the section (top/bottom)
+        
+        Output:
+        attribute: .yNeutralAxis
+        """       
+        self.yNeutralAxis = self.flange.height + self.web.height/2
+
+
 class beamC(geometry):
+        """
+        Description:
+        Section for a beam with custom C shape. Beam model is a composite model of 3 rectangle objects which are:
+        Flange x 2 (Rectangular solid geometry object)
+        Web offset to left (Rectangular solid geometry object)
+        It assumes a disposition as shown below:
+        
+        --
+        |
+        --
+        Total height = height_web + height_flange*2
+        Total width = width_flange
+        """
     
     def setFlange(self,widthFlange,heightFlange):
+        """
+        Description:
+        Flange object created by using the rectangular class object and setting required attributes
         
+        Parameters
+        widthFlange: width of the flange rectangular object
+        heightFlange: height of the flange rectangular object
+        
+        Output:
+        attribute: .flange
+        """         
         self.flange = rectangular(units = self.units)
         self.flange.setProfile(widthFlange, heightFlange)
     
     def setWeb(self,widthWeb,heightWeb):
+        """
+        Description:
+        Web object created by using the rectangular class object and setting required attributes
+
+        Parameters
+        widthWeb: width of the Web rectangular object
+        heightWeb: height of the rectangular object
         
+        Output:
+        attribute: .web
+        """         
         self.web = rectangular(units = self.units)
         self.web.setProfile(widthWeb, heightWeb)     
         
     def setInertiaSA(self):
-        kParallelAxis = self.flange.Ix + self.flange.areaSection*(self.web.height/2 + self.flange.height/2)**2
-        self.inertiaSA = self.web.Ix + kParallelAxis*2
+        """
+        Description:
+        Sets inertia for beam strong axis (Ixx in this case)
+        
+        Output:
+        attribute: .inertia_xx
+        """ 
+        kParallelAxis = self.flange.inertia_xx + self.flange.areaSection*(self.web.height/2 + self.flange.height/2)**2
+        self.inertiaSA = self.web.inertia_xx + kParallelAxis*2
         
     def setInertiaWA(self):
+        """
+        Description:
+        Sets inertia for beam weak axis (Iyy in this case)
+        
+        Output:
+        attribute: .inertia_xx
+        """ 
         kParallelAxis = self.flange.Iy # + self.flange.areaSection*(self.web.width/2 + self.flange.width/2)**2
         self.inertiaWA = self.web.Iy + kParallelAxis*2        
         
@@ -160,5 +267,6 @@ class beamC(geometry):
         self.sectionArea = self.flange.sectionArea*2 + self.web.sectionArea
 
         
+
 
 
