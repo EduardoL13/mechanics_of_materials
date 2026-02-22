@@ -35,7 +35,7 @@ def bendStress(moment,geometry):
     Output:
     sigma > stress #[units according to given input]
     """
-    sigma = moment*yNeutralAxis/inertia
+    sigma = moment*geometry.yNeutralAxis/geometry.inertia_xx
     return sigma
 
 def shearingStress(shearV,geometry):
@@ -71,6 +71,7 @@ def torsionStress(torque,radius,polarMoment):
     """
     tao = torque*geometry.radius*1/geometry.polarMoment
     return tao
+
 
 
 
