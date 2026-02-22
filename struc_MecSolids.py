@@ -1,7 +1,13 @@
-# Módulo de Mecánica de sólidos (mecsolids): Contiene todas las funciones relacionadas con mecánica de sólidos
+"""
+stressEval module (Functions Set)
 
+Description: Module that contains a set of functions to evaluate theorical stresses for given geometries.
+Input: All functions receive geometry objects as inputs
+
+@author: ELC
+"""
 # Funciones para determinar esfuerzos en puntos o secciones determinadas
-def axialStress(load,areaSection):
+def axialStress(load,geometry):
     """
     Description:
     Calculates axial stress for a prismatic element of constant stress in the section
@@ -13,7 +19,7 @@ def axialStress(load,areaSection):
     Output:
     sigma > stress #[units according to given input]
     """
-    sigma = load/areaSection
+    sigma = load/geometry.Area
     return sigma
 
 def bendStress(moment,yNeutralAxis,inertia):
@@ -65,3 +71,4 @@ def torsionStress(torque,radius,polarMoment):
     """
     tao = torque*radius*1/polarMoment
     return tao
+
