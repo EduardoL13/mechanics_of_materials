@@ -53,7 +53,7 @@ def shearingStress(shearV,geometry):
     tao > Shear stress #[units according to given input]
     """
 
-    tao = shearV * areaMomentQ*1/(inertia*widthinNA)
+    tao = shearV * geometry.areaMomentQ*1/(geometry.inertia_xx * geometry.width)
     return tao
 
 def torsionStress(torque,radius,polarMoment):
@@ -69,7 +69,8 @@ def torsionStress(torque,radius,polarMoment):
     Output:
     tao > Shear stress #[units according to given input]
     """
-    tao = torque*radius*1/polarMoment
+    tao = torque*geometry.radius*1/geometry.polarMoment
     return tao
+
 
 
