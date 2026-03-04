@@ -114,12 +114,6 @@ class rectangular(geometry):
         self.yNeutralAxis = self.height/2
         
 class beamI(geometry):
-        """
-        Description:
-        Section for a beam with custom I shape. Beam model is a composite model of 3 rectangle objects which are:
-        Flange x 2 (Rectangular solid geometry object)
-        Web (Rectangular solid geometry object)
-        """
 
     def setFlange(self,widthFlange,heightFlange):
         """
@@ -197,20 +191,7 @@ class beamI(geometry):
 
 
 class beamC(geometry):
-        """
-        Description:
-        Section for a beam with custom C shape. Beam model is a composite model of 3 rectangle objects which are:
-        Flange x 2 (Rectangular solid geometry object)
-        Web offset to left (Rectangular solid geometry object)
-        It assumes a disposition as shown below:
-        
-        --
-        |
-        --
-        Total height = height_web + height_flange*2
-        Total width = width_flange
-        """
-    
+
     def setFlange(self,widthFlange,heightFlange):
         """
         Description:
@@ -267,6 +248,7 @@ class beamC(geometry):
         self.sectionArea = self.flange.sectionArea*2 + self.web.sectionArea
 
         
+
 
 
 
